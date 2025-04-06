@@ -40,6 +40,7 @@ if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
+# Draw face of the cube
 def draw_face(face, x_offset, y_offset):
     for i in range(3):
         for j in range(3):
@@ -47,6 +48,7 @@ def draw_face(face, x_offset, y_offset):
             pygame.draw.rect(screen, color, (x_offset + j * 50, y_offset + i * 50, 48, 48))
             pygame.draw.rect(screen, (0, 0, 0), (x_offset + j * 50, y_offset + i * 50, 48, 48), 2)
 
+# Draw full cube layout
 def draw_cube():
     screen.fill((30, 30, 30))
     draw_face("U", 200, 50)
@@ -57,6 +59,7 @@ def draw_cube():
     draw_face("D", 200, 350)
     pygame.display.flip()
 
+# Reset cube state
 def reset_cube():
     global cube
     cube = {
@@ -69,9 +72,9 @@ def reset_cube():
     }
     print("Cube reset to initial state.")
 
+# Rotation logic
 def rotate_face_clockwise(face):
     global cube
-    print(f"Rotating {face} face clockwise (before): {cube[face]}")
     cube[face] = np.rot90(cube[face], -1)
 
     if face == "R":
@@ -128,16 +131,21 @@ def rotate_face_clockwise(face):
         cube["L"][:, 0] = top_row[::-1]
         cube["D"][2] = left_col
         cube["R"][:, 2] = bottom_row[::-1]
-    print(f"Rotating {face} face clockwise (after): {cube[face]}")
 
 def rotate_middle_horizontal(direction):
     global cube
     print(f"Rotating middle row {direction} (before): F[1]={cube['F'][1]}, R[1]={cube['R'][1]}, B[1]={cube['B'][1]}, L[1]={cube['L'][1]}")
-    cube["F"][1], cube["R"][1], cube["B"][1], cube["L"][1] = (
-        cube["L"][1], cube["F"][1], cube["R"][1], cube["B"][1]
-    ) if direction == 1 else (
-        cube["R"][1], cube["B"][1], cube["L"][1], cube["F"][1]
-    )
+    temp = cube["F"][1].copy()  # Store the initial F[1] value
+    if direction == 1:  # Right rotation (F → R → B → L)
+        cube["F"][1] = cube["R"][1]
+        cube["R"][1] = cube["B"][1]
+        cube["B"][1] = cube["L"][1]
+        cube["L"][1] = temp
+    else:  # direction == -1, Left rotation (F → L → B → R)
+        cube["F"][1] = cube["L"][1]
+        cube["L"][1] = cube["B"][1]
+        cube["B"][1] = cube["R"][1]
+        cube["R"][1] = temp
     print(f"Rotating middle row {direction} (after): F[1]={cube['F'][1]}, R[1]={cube['R'][1]}, B[1]={cube['B'][1]}, L[1]={cube['L'][1]}")
 
 def rotate_middle_vertical(direction):
@@ -149,41 +157,42 @@ def rotate_middle_vertical(direction):
         cube["L"][:, 1] = cube["D"][:, 1]
         cube["D"][:, 1] = cube["R"][:, 1]
         cube["R"][:, 1] = temp_col
-    else:
+    else:  # direction == -1 (down)
         cube["U"][:, 1] = cube["R"][:, 1]
         cube["R"][:, 1] = cube["D"][:, 1]
         cube["D"][:, 1] = cube["L"][:, 1]
         cube["L"][:, 1] = temp_col
     print(f"Rotating middle column {direction} (after): U[:,1]={cube['U'][:, 1]}, L[:,1]={cube['L'][:, 1]}, D[:,1]={cube['D'][:, 1]}, R[:,1]={cube['R'][:, 1]}")
 
+# Process gestures
 def process_gesture(gesture_text):
     global last_gesture
-    if gesture_text and gesture_text != last_gesture:
-        print(f"Processing gesture: {gesture_text}")
-        if gesture_text == "Reset Cube":
-            reset_cube()
-        elif gesture_text == "Rotate Up Face":
-            rotate_face_clockwise("U")
-        elif gesture_text == "Rotate Down Face":
-            rotate_face_clockwise("D")
-        elif gesture_text == "Rotate Right Face":
-            rotate_face_clockwise("R")
-        elif gesture_text == "Rotate Left Face":
-            rotate_face_clockwise("L")
-        elif gesture_text == "Rotate Front Face":
-            rotate_face_clockwise("F")
-        elif gesture_text == "Rotate Back Face":
-            rotate_face_clockwise("B")
-        elif gesture_text == "Middle Row → Right":
-            rotate_middle_horizontal(1)
-        elif gesture_text == "Middle Row → Left":
-            rotate_middle_horizontal(-1)
-        elif gesture_text == "Middle Column ↑":
-            rotate_middle_vertical(1)
-        elif gesture_text == "Middle Column ↓":
-            rotate_middle_vertical(-1)
-        last_gesture = gesture_text
+    print(f"Processing gesture: {gesture_text}")
+    if gesture_text == "Reset Cube":
+        reset_cube()
+    elif gesture_text == "Rotate Right Face":
+        rotate_face_clockwise("R")
+    elif gesture_text == "Rotate Up Face":
+        rotate_face_clockwise("U")
+    elif gesture_text == "Rotate Front Face":
+        rotate_face_clockwise("F")
+    elif gesture_text == "Rotate Left Face":
+        rotate_face_clockwise("L")
+    elif gesture_text == "Rotate Down Face":
+        rotate_face_clockwise("D")
+    elif gesture_text == "Rotate Back Face":
+        rotate_face_clockwise("B")
+    elif gesture_text == "Middle Row Right":
+        rotate_middle_horizontal(1)
+    elif gesture_text == "Middle Row Left":
+        rotate_middle_horizontal(-1)
+    elif gesture_text == "Middle Column Up":
+        rotate_middle_vertical(1)
+    elif gesture_text == "Middle Column Down":
+        rotate_middle_vertical(-1)
+    last_gesture = gesture_text
 
+# Detect gesture from hand landmarks
 def detect_gesture(results):
     if not results.multi_hand_landmarks:
         return ""
@@ -201,30 +210,22 @@ def detect_gesture(results):
             right = h["landmarks"]
 
     def is_index_up(hand):
-        return hand.landmark[8].y < hand.landmark[6].y
+        return hand.landmark[8].y < hand.landmark[6].y  # Index tip above PIP
 
-    def is_index_middle_up(hand):
-        return hand.landmark[8].y < hand.landmark[6].y and hand.landmark[12].y < hand.landmark[10].y
+    def is_pinky_up(hand):
+        return hand.landmark[20].y < hand.landmark[18].y  # Pinky tip above PIP
+
+    def is_middle_up(hand):
+        return hand.landmark[12].y < hand.landmark[10].y  # Middle tip above PIP
 
     def is_fist(hand):
-        # Finger tip and PIP joint indices
         finger_tips = [8, 12, 16, 20]
         finger_pips = [6, 10, 14, 18]
-
-        # All fingers should be curled: tip should be below the PIP joint
-        fingers_curled = all(
-            hand.landmark[tip].y > hand.landmark[pip].y + 0.02  # add margin
-            for tip, pip in zip(finger_tips, finger_pips)
-        )
-
-        # Thumb tip close to the palm (optional)
+        fingers_curled = all(hand.landmark[tip].y > hand.landmark[pip].y + 0.02 for tip, pip in zip(finger_tips, finger_pips))
         thumb_tip = hand.landmark[4]
         wrist = hand.landmark[0]
-        thumb_tucked = abs(thumb_tip.x - wrist.x) < 0.1  # tweak this if needed
-
+        thumb_tucked = abs(thumb_tip.x - wrist.x) < 0.1
         return fingers_curled and thumb_tucked
-
-
 
     def is_palm_open(hand):
         wrist = hand.landmark[0]
@@ -232,61 +233,63 @@ def detect_gesture(results):
         middle = hand.landmark[12]
         ring = hand.landmark[16]
         pinky = hand.landmark[20]
-
         if not all(hand.landmark[i].y < wrist.y for i in [8, 12, 16, 20]):
             return False
-
         if abs(index.x - pinky.x) < 0.1:
             return False
-
         palm_vector = np.array([middle.x - wrist.x, middle.y - wrist.y, middle.z - wrist.z])
         index_vector = np.array([index.x - wrist.x, index.y - wrist.y, index.z - wrist.z])
-
         dot = np.dot(palm_vector, index_vector)
         norm_product = np.linalg.norm(palm_vector) * np.linalg.norm(index_vector)
         if norm_product == 0:
             return False
         angle = math.degrees(math.acos(np.clip(dot / norm_product, -1.0, 1.0)))
-
         return angle < 45
 
+    # Debug hand states
     if left:
-        print(f"Left hand: is_fist={is_fist(left)}, is_palm_open={is_palm_open(left)}")
+        print(f"Left hand: index_up={is_index_up(left)}, pinky_up={is_pinky_up(left)}, middle_up={is_middle_up(left)}, fist={is_fist(left)}, palm_open={is_palm_open(left)}")
     if right:
-        print(f"Right hand: is_fist={is_fist(right)}, is_palm_open={is_palm_open(right)}")
+        print(f"Right hand: index_up={is_index_up(right)}, pinky_up={is_pinky_up(right)}, middle_up={is_middle_up(right)}, fist={is_fist(right)}, palm_open={is_palm_open(right)}")
 
+    # Both hands gestures
     if left and right:
         if is_palm_open(left) and is_palm_open(right):
             return "Reset Cube"
         if is_index_up(right) and is_fist(left):
-            return "Middle Row → Right"
+            return "Middle Row Right"
         if is_index_up(left) and is_fist(right):
-            return "Middle Row → Left"
-        if is_index_up(left) and is_index_up(right):
-            return "Middle Column ↑"
-        if is_index_middle_up(left) and is_index_middle_up(right):
-            return "Middle Column ↓"
+            return "Middle Row Left"
 
+    # Right hand gestures
     if right:
-        if is_index_middle_up(right):
-            return "Rotate Up Face"
         if is_index_up(right):
             return "Rotate Right Face"
+        if is_pinky_up(right):
+            return "Rotate Up Face"
+        if is_middle_up(right):
+            return "Middle Column Up"
         if is_palm_open(right):
             return "Rotate Front Face"
 
+    # Left hand gestures
     if left:
-        if is_index_middle_up(left):
-            return "Rotate Down Face"
         if is_index_up(left):
             return "Rotate Left Face"
+        if is_pinky_up(left):
+            return "Rotate Down Face"
+        if is_middle_up(left):
+            return "Middle Column Down"
         if is_palm_open(left):
             return "Rotate Back Face"
 
     return ""
 
+# Main loop
 last_gesture = ""
+waiting_for_rest = False
 running = True
+
 while running:
     draw_cube()
     ret, frame = cap.read()
@@ -302,8 +305,14 @@ while running:
         for hand_landmarks in results.multi_hand_landmarks:
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-    if gesture_text and gesture_text != last_gesture:
+    # Handle gestures
+    if waiting_for_rest:
+        if gesture_text == "":
+            waiting_for_rest = False
+            last_gesture = ""
+    elif gesture_text and gesture_text != last_gesture:
         process_gesture(gesture_text)
+        waiting_for_rest = True
 
     cv2.putText(frame, f"Gesture: {gesture_text}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     cv2.imshow("Hand Tracking", frame)
