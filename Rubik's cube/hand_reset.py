@@ -207,9 +207,24 @@ def detect_gesture(results):
         return hand.landmark[8].y < hand.landmark[6].y and hand.landmark[12].y < hand.landmark[10].y
 
     def is_fist(hand):
-        wrist_y = hand.landmark[0].y
-        return all(hand.landmark[i].y > wrist_y for i in [8, 12, 16, 20]) and \
-               all(hand.landmark[i].y > hand.landmark[i - 2].y for i in [8, 12, 16, 20])
+        # Finger tip and PIP joint indices
+        finger_tips = [8, 12, 16, 20]
+        finger_pips = [6, 10, 14, 18]
+
+        # All fingers should be curled: tip should be below the PIP joint
+        fingers_curled = all(
+            hand.landmark[tip].y > hand.landmark[pip].y + 0.02  # add margin
+            for tip, pip in zip(finger_tips, finger_pips)
+        )
+
+        # Thumb tip close to the palm (optional)
+        thumb_tip = hand.landmark[4]
+        wrist = hand.landmark[0]
+        thumb_tucked = abs(thumb_tip.x - wrist.x) < 0.1  # tweak this if needed
+
+        return fingers_curled and thumb_tucked
+
+
 
     def is_palm_open(hand):
         wrist = hand.landmark[0]
