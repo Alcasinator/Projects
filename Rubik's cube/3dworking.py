@@ -191,29 +191,7 @@ def rotate_face_3d(face, direction):
             cube['L'][2] = back[::-1]
     elif face == 'F':
         if direction == 1:
-            cube['F'] = np.rot90(cube['F'], -1)
-            # Update adjacent faces (U, R, D, L)
-            up_row = cube['U'][2].copy()
-            right_col = cube['R'][:, 0].copy()
-            down_row = cube['D'][0].copy()
-            left_col = cube['L'][:, 2].copy()
-            cube['U'][2] = left_col[::-1]
-            cube['R'][:, 0] = up_row
-            cube['D'][0] = right_col[::-1]
-            cube['L'][:, 2] = down_row
-        else:
             cube['F'] = np.rot90(cube['F'], 1)
-            up_row = cube['U'][2].copy()
-            right_col = cube['R'][:, 0].copy()
-            down_row = cube['D'][0].copy()
-            left_col = cube['L'][:, 2].copy()
-            cube['U'][2] = right_col[::-1]
-            cube['R'][:, 0] = down_row
-            cube['D'][0] = left_col[::-1]
-            cube['L'][:, 2] = up_row
-    elif face == 'B':
-        if direction == 1:
-            cube['B'] = np.rot90(cube['B'], -1)
             # Update adjacent faces (U, R, D, L)
             up_row = cube['U'][0].copy()
             right_col = cube['R'][:, 2].copy()
@@ -224,7 +202,7 @@ def rotate_face_3d(face, direction):
             cube['D'][2] = left_col
             cube['L'][:, 0] = up_row[::-1]
         else:
-            cube['B'] = np.rot90(cube['B'], 1)
+            cube['F'] = np.rot90(cube['F'], -1)
             up_row = cube['U'][0].copy()
             right_col = cube['R'][:, 2].copy()
             down_row = cube['D'][2].copy()
@@ -233,78 +211,102 @@ def rotate_face_3d(face, direction):
             cube['R'][:, 2] = up_row[::-1]
             cube['D'][2] = right_col
             cube['L'][:, 0] = down_row[::-1]
+        
+    elif face == 'B':
+        if direction == 1:
+            cube['B'] = np.rot90(cube['B'], 1)
+            # Update adjacent faces (U, R, D, L)
+            up_row = cube['U'][2].copy()
+            right_col = cube['R'][:, 0].copy()
+            down_row = cube['D'][0].copy()
+            left_col = cube['L'][:, 2].copy()
+            cube['U'][2] = left_col[::-1]
+            cube['R'][:, 0] = up_row
+            cube['D'][0] = right_col[::-1]
+            cube['L'][:, 2] = down_row
+        else:
+            cube['B'] = np.rot90(cube['B'], -1)
+            up_row = cube['U'][2].copy()
+            right_col = cube['R'][:, 0].copy()
+            down_row = cube['D'][0].copy()
+            left_col = cube['L'][:, 2].copy()
+            cube['U'][2] = right_col[::-1]
+            cube['R'][:, 0] = down_row
+            cube['D'][0] = left_col[::-1]
+            cube['L'][:, 2] = up_row
     elif face == 'L':
-        if direction == 1:
-            cube['L'] = np.rot90(cube['L'], -1)
+        if direction == 1:  # Clockwise
+            cube['L'] = np.rot90(cube['L'], 1)  # 90 degrees clockwise
             # Update adjacent faces (U, F, D, B)
             up_col = cube['U'][:, 0].copy()
             front_col = cube['F'][:, 0].copy()
             down_col = cube['D'][:, 0].copy()
             back_col = cube['B'][:, 2].copy()
-            cube['U'][:, 0] = back_col
-            cube['F'][:, 0] = up_col
-            cube['D'][:, 0] = front_col
-            cube['B'][:, 2] = down_col[::-1]
-        else:
-            cube['L'] = np.rot90(cube['L'], 1)
+            cube['U'][:, 0] = back_col   # Back to Up, reversed
+            cube['F'][:, 0] = up_col[::-1]           # Up to Front
+            cube['D'][:, 0] = front_col[::-1]  # Front to Down, reversed
+            cube['B'][:, 2] = down_col        # Down to Back
+        else:  # Counterclockwise
+            cube['L'] = np.rot90(cube['L'], -1)  # 90 degrees counterclockwise
             up_col = cube['U'][:, 0].copy()
             front_col = cube['F'][:, 0].copy()
             down_col = cube['D'][:, 0].copy()
             back_col = cube['B'][:, 2].copy()
-            cube['U'][:, 0] = front_col
-            cube['F'][:, 0] = down_col
-            cube['D'][:, 0] = back_col[::-1]
-            cube['B'][:, 2] = up_col
+            cube['U'][:, 0] = front_col        # Front to Up
+            cube['F'][:, 0] = down_col[::-1]   # Down to Front, reversed
+            cube['D'][:, 0] = back_col[::-1]        # Back to Down
+            cube['B'][:, 2] = up_col     # Up to Back, reversed
     elif face == 'R':
-        if direction == 1:
-            cube['R'] = np.rot90(cube['R'], -1)
-            # Update adjacent faces (U, F, D, B)
+        if direction == 1:  # Clockwise
+            cube['R'] = np.rot90(cube['R'], -1)  # 90 degrees clockwise
+            # Update adjacent faces (U, B, D, F)
             up_col = cube['U'][:, 2].copy()
-            front_col = cube['F'][:, 2].copy()
-            down_col = cube['D'][:, 2].copy()
             back_col = cube['B'][:, 0].copy()
-            cube['U'][:, 2] = front_col
-            cube['F'][:, 2] = down_col
-            cube['D'][:, 2] = back_col[::-1]
-            cube['B'][:, 0] = up_col[::-1]
-        else:
-            cube['R'] = np.rot90(cube['R'], 1)
+            down_col = cube['D'][:, 2].copy()
+            front_col = cube['F'][:, 2].copy()
+            cube['U'][:, 2] = back_col   # Back to Up, reversed
+            cube['B'][:, 0] = down_col          # Down to Back
+            cube['D'][:, 2] = front_col[::-1]   # Front to Down, reversed
+            cube['F'][:, 2] = up_col[::-1]            # Up to Front
+        else:  # Counterclockwise
+            cube['R'] = np.rot90(cube['R'], 1)  # 90 degrees counterclockwise
             up_col = cube['U'][:, 2].copy()
-            front_col = cube['F'][:, 2].copy()
-            down_col = cube['D'][:, 2].copy()
             back_col = cube['B'][:, 0].copy()
-            cube['U'][:, 2] = back_col[::-1]
-            cube['F'][:, 2] = up_col
-            cube['D'][:, 2] = front_col[::-1]
-            cube['B'][:, 0] = down_col
+            down_col = cube['D'][:, 2].copy()
+            front_col = cube['F'][:, 2].copy()
+            cube['U'][:, 2] = front_col     # Front to Up
+            cube['B'][:, 0] = up_col     # Up to Back, reversed
+            cube['D'][:, 2] = back_col[::-1]          # Back to Down
+            cube['F'][:, 2] = down_col[::-1]    # Down to Front, reversed
 
 def rotate_middle_horizontal(direction):
     global cube
-    temp = cube['F'][1].copy()
-    if direction == 1:  # Right rotation (F → R → B → L)
-        cube['F'][1] = cube['R'][1]
-        cube['R'][1] = cube['B'][1]
-        cube['B'][1] = cube['L'][1]
+    temp = cube['F'][1][::-1].copy()
+    
+    if direction == -1:  # Clockwise 
+        cube['F'][1] = cube['R'][1][::-1]
+        cube['R'][1] = cube['B'][1][::-1]
+        cube['B'][1] = cube['L'][1][::-1]
         cube['L'][1] = temp
-    else:  # Left rotation (F → L → B → R)
-        cube['F'][1] = cube['L'][1]
-        cube['L'][1] = cube['B'][1]
-        cube['B'][1] = cube['R'][1]
+    else:  # Counterclockwise 
+        cube['F'][1] = cube['L'][1][::-1]
+        cube['L'][1] = cube['B'][1][::-1]
+        cube['B'][1] = cube['R'][1][::-1]
         cube['R'][1] = temp
 
 def rotate_middle_vertical(direction):
     global cube
     temp_col = cube['F'][:, 1][::-1].copy()  # Start with Front middle column, reversed
-    if direction == 1:  # Clockwise: Front → Down → Back → Up
-        cube['F'][:, 1] = cube['D'][:, 1][::-1]  # Down to Front, reversed
-        cube['D'][:, 1] = cube['B'][:, 1]        # Back to Down
-        cube['B'][:, 1] = cube['U'][:, 1]  # Up to Back, reversed
-        cube['U'][:, 1] = temp_col              # Front to Up
-    else:  # Counterclockwise: Front → Up → Back → Down
+    if direction == -1:  # Clockwise: Front → Down → Back → Up
         cube['F'][:, 1] = cube['D'][:, 1][::-1]  # Down to Front, reversed
         cube['D'][:, 1] = cube['B'][:, 1]        # Back to Down
         cube['B'][:, 1] = cube['U'][:, 1]        # Up to Back
-        cube['U'][:, 1] = temp_col               # Front to Up
+        cube['U'][:, 1] = temp_col              # Front to Up
+    else:  # Counterclockwise: Front → Up → Back → Down
+        cube['F'][:, 1] = cube['U'][:, 1][::-1]  # Up to Front, reversed
+        cube['U'][:, 1] = cube['B'][:, 1]        # Back to Up
+        cube['B'][:, 1] = cube['D'][:, 1]        # Down to Back
+        cube['D'][:, 1] = temp_col               # Front to Down
 
 # Process gestures
 def process_gesture(gesture_text):
@@ -359,6 +361,9 @@ def detect_gesture(results):
     def is_middle_up(hand):
         return hand.landmark[12].y < hand.landmark[10].y  # Middle tip above PIP
 
+    def is_ring_up(hand):
+        return hand.landmark[16].y < hand.landmark[14].y  # Ring tip above PIP
+
     def is_fist(hand):
         finger_tips = [8, 12, 16, 20]
         finger_pips = [6, 10, 14, 18]
@@ -403,8 +408,8 @@ def detect_gesture(results):
         if is_pinky_up(right):
             return "Rotate Up Face"
         if is_middle_up(right):
-            return "Middle Column Up"  # Now counterclockwise
-        if is_palm_open(right):
+            return "Middle Column Up"
+        if is_ring_up(right):
             return "Rotate Front Face"
 
     # Left hand gestures
@@ -414,8 +419,8 @@ def detect_gesture(results):
         if is_pinky_up(left):
             return "Rotate Down Face"
         if is_middle_up(left):
-            return "Middle Column Down"  # Now clockwise
-        if is_palm_open(left):
+            return "Middle Column Down"
+        if is_ring_up(left):
             return "Rotate Back Face"
 
     return ""
