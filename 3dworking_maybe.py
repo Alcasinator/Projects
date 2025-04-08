@@ -191,29 +191,7 @@ def rotate_face_3d(face, direction):
             cube['L'][2] = back[::-1]
     elif face == 'F':
         if direction == 1:
-            cube['F'] = np.rot90(cube['F'], -1)
-            # Update adjacent faces (U, R, D, L)
-            up_row = cube['U'][2].copy()
-            right_col = cube['R'][:, 0].copy()
-            down_row = cube['D'][0].copy()
-            left_col = cube['L'][:, 2].copy()
-            cube['U'][2] = left_col[::-1]
-            cube['R'][:, 0] = up_row
-            cube['D'][0] = right_col[::-1]
-            cube['L'][:, 2] = down_row
-        else:
             cube['F'] = np.rot90(cube['F'], 1)
-            up_row = cube['U'][2].copy()
-            right_col = cube['R'][:, 0].copy()
-            down_row = cube['D'][0].copy()
-            left_col = cube['L'][:, 2].copy()
-            cube['U'][2] = right_col[::-1]
-            cube['R'][:, 0] = down_row
-            cube['D'][0] = left_col[::-1]
-            cube['L'][:, 2] = up_row
-    elif face == 'B':
-        if direction == 1:
-            cube['B'] = np.rot90(cube['B'], -1)
             # Update adjacent faces (U, R, D, L)
             up_row = cube['U'][0].copy()
             right_col = cube['R'][:, 2].copy()
@@ -224,7 +202,7 @@ def rotate_face_3d(face, direction):
             cube['D'][2] = left_col
             cube['L'][:, 0] = up_row[::-1]
         else:
-            cube['B'] = np.rot90(cube['B'], 1)
+            cube['F'] = np.rot90(cube['F'], -1)
             up_row = cube['U'][0].copy()
             right_col = cube['R'][:, 2].copy()
             down_row = cube['D'][2].copy()
@@ -233,6 +211,29 @@ def rotate_face_3d(face, direction):
             cube['R'][:, 2] = up_row[::-1]
             cube['D'][2] = right_col
             cube['L'][:, 0] = down_row[::-1]
+        
+    elif face == 'B':
+        if direction == 1:
+            cube['B'] = np.rot90(cube['B'], 1)
+            # Update adjacent faces (U, R, D, L)
+            up_row = cube['U'][2].copy()
+            right_col = cube['R'][:, 0].copy()
+            down_row = cube['D'][0].copy()
+            left_col = cube['L'][:, 2].copy()
+            cube['U'][2] = left_col[::-1]
+            cube['R'][:, 0] = up_row
+            cube['D'][0] = right_col[::-1]
+            cube['L'][:, 2] = down_row
+        else:
+            cube['B'] = np.rot90(cube['B'], -1)
+            up_row = cube['U'][2].copy()
+            right_col = cube['R'][:, 0].copy()
+            down_row = cube['D'][0].copy()
+            left_col = cube['L'][:, 2].copy()
+            cube['U'][2] = right_col[::-1]
+            cube['R'][:, 0] = down_row
+            cube['D'][0] = left_col[::-1]
+            cube['L'][:, 2] = up_row
     elif face == 'L':
         if direction == 1:
             cube['L'] = np.rot90(cube['L'], -1)
@@ -334,6 +335,7 @@ def process_gesture(gesture_text):
     last_gesture = gesture_text
 
 # Detect gesture from hand landmarks
+# Detect gesture from hand landmarks
 def detect_gesture(results):
     if not results.multi_hand_landmarks:
         return ""
@@ -358,6 +360,9 @@ def detect_gesture(results):
 
     def is_middle_up(hand):
         return hand.landmark[12].y < hand.landmark[10].y  # Middle tip above PIP
+
+    def is_ring_up(hand):
+        return hand.landmark[16].y < hand.landmark[14].y  # Ring tip above PIP
 
     def is_fist(hand):
         finger_tips = [8, 12, 16, 20]
@@ -403,8 +408,8 @@ def detect_gesture(results):
         if is_pinky_up(right):
             return "Rotate Up Face"
         if is_middle_up(right):
-            return "Middle Column Up"  # Now counterclockwise
-        if is_palm_open(right):
+            return "Middle Column Up"
+        if is_ring_up(right):  # Changed from is_palm_open
             return "Rotate Front Face"
 
     # Left hand gestures
@@ -414,8 +419,8 @@ def detect_gesture(results):
         if is_pinky_up(left):
             return "Rotate Down Face"
         if is_middle_up(left):
-            return "Middle Column Down"  # Now clockwise
-        if is_palm_open(left):
+            return "Middle Column Down"
+        if is_ring_up(left):  # Changed from is_palm_open
             return "Rotate Back Face"
 
     return ""
