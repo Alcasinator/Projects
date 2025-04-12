@@ -321,7 +321,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    clock.tick(15)
+    clock.tick(30)
 
 cap.release()
 cv2.destroyAllWindows()
