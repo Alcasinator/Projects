@@ -541,10 +541,17 @@ def process_gesture(gesture_text):
         expected_gesture = gesture_map.get(face, "")
         if gesture_text == expected_gesture:
             print(f"Applying {gesture_text} for move {move}")
-            rotate_face_3d(face, direction)
-            if direction == 2:
+            if direction == 1:
+                rotate_face_3d(face, 1)
+            elif direction == -1:
+                rotate_face_3d(face, 1)
+                print("Completing counterclockwise: Applying two additional clockwise rotations")
+                rotate_face_3d(face, 1)
+                rotate_face_3d(face, 1)
+            elif direction == 2:
+                rotate_face_3d(face, 1)
                 print("Applying second 90° for 180° move")
-                rotate_face_3d(face, direction)
+                rotate_face_3d(face, 1)
             current_step += 1
             if current_step < len(solution_steps):
                 move = solution_steps[current_step]
