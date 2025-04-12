@@ -246,39 +246,50 @@ def reset_cube():
 def rotate_face_3d(face, direction):
     global cube
     if face == 'U':
-        cube['U'] = np.rot90(cube['U'], -1 if direction == 1 else 1)
+        cube['U'] = np.rot90(cube['U'], 1 if direction == 1 else -1)
         front = cube['F'][0].copy()
         right = cube['R'][0].copy()
         back = cube['B'][0].copy()
         left = cube['L'][0].copy()
         if direction == 1:
+            cube['F'][0] = right[::-1]
+            cube['R'][0] = back[::-1]
+            cube['B'][0] = left[::-1]
+            cube['L'][0] = front[::-1]            
+        else:
             cube['F'][0] = left[::-1]
             cube['R'][0] = front[::-1]
             cube['B'][0] = right[::-1]
             cube['L'][0] = back[::-1]
-        else:
-            cube['F'][0] = right[::-1]
-            cube['R'][0] = back[::-1]
-            cube['B'][0] = left[::-1]
-            cube['L'][0] = front[::-1]
+            
     elif face == 'D':
-        cube['D'] = np.rot90(cube['D'], -1 if direction == 1 else 1)
+        cube['D'] = np.rot90(cube['D'], 1 if direction == 1 else -1)
         front = cube['F'][2].copy()
         right = cube['R'][2].copy()
         back = cube['B'][2].copy()
         left = cube['L'][2].copy()
         if direction == 1:
+            cube['F'][2] = left[::-1]
+            cube['R'][2] = front[::-1]
+            cube['B'][2] = right[::-1]
+            cube['L'][2] = back[::-1]            
+        else:
             cube['F'][2] = right[::-1]
             cube['R'][2] = back[::-1]
             cube['B'][2] = left[::-1]
             cube['L'][2] = front[::-1]
-        else:
-            cube['F'][2] = left[::-1]
-            cube['R'][2] = front[::-1]
-            cube['B'][2] = right[::-1]
-            cube['L'][2] = back[::-1]
     elif face == 'F':
         if direction == 1:
+            cube['F'] = np.rot90(cube['F'], -1)
+            up_row = cube['U'][0].copy()
+            right_col = cube['R'][:, 2].copy()
+            down_row = cube['D'][2].copy()
+            left_col = cube['L'][:, 0].copy()
+            cube['U'][0] = left_col[::-1]
+            cube['R'][:, 2] = up_row
+            cube['D'][2] = right_col[::-1]
+            cube['L'][:, 0] = down_row
+        else:
             cube['F'] = np.rot90(cube['F'], 1)
             up_row = cube['U'][0].copy()
             right_col = cube['R'][:, 2].copy()
@@ -288,18 +299,18 @@ def rotate_face_3d(face, direction):
             cube['R'][:, 2] = down_row[::-1]
             cube['D'][2] = left_col
             cube['L'][:, 0] = up_row[::-1]
-        else:
-            cube['F'] = np.rot90(cube['F'], -1)
-            up_row = cube['U'][0].copy()
-            right_col = cube['R'][:, 2].copy()
-            down_row = cube['D'][2].copy()
-            left_col = cube['L'][:, 0].copy()
-            cube['U'][0] = left_col
-            cube['R'][:, 2] = up_row[::-1]
-            cube['D'][2] = right_col
-            cube['L'][:, 0] = down_row[::-1]
     elif face == 'B':
         if direction == 1:
+            cube['B'] = np.rot90(cube['B'], -1)
+            up_row = cube['U'][2].copy()
+            right_col = cube['R'][:, 0].copy()
+            down_row = cube['D'][0].copy()
+            left_col = cube['L'][:, 2].copy()
+            cube['U'][2] = right_col
+            cube['R'][:, 0] = down_row[::-1]
+            cube['D'][0] = left_col
+            cube['L'][:, 2] = up_row[::-1]
+        else:
             cube['B'] = np.rot90(cube['B'], 1)
             up_row = cube['U'][2].copy()
             right_col = cube['R'][:, 0].copy()
@@ -309,16 +320,6 @@ def rotate_face_3d(face, direction):
             cube['R'][:, 0] = up_row
             cube['D'][0] = right_col[::-1]
             cube['L'][:, 2] = down_row
-        else:
-            cube['B'] = np.rot90(cube['B'], -1)
-            up_row = cube['U'][2].copy()
-            right_col = cube['R'][:, 0].copy()
-            down_row = cube['D'][0].copy()
-            left_col = cube['L'][:, 2].copy()
-            cube['U'][2] = right_col[::-1]
-            cube['R'][:, 0] = down_row
-            cube['D'][0] = left_col[::-1]
-            cube['L'][:, 2] = up_row
     elif face == 'L':
         if direction == 1:
             cube['L'] = np.rot90(cube['L'], 1)
@@ -342,6 +343,16 @@ def rotate_face_3d(face, direction):
             cube['B'][:, 2] = up_col
     elif face == 'R':
         if direction == 1:
+            cube['R'] = np.rot90(cube['R'], 1)
+            up_col = cube['U'][:, 2].copy()
+            back_col = cube['B'][:, 0].copy()
+            down_col = cube['D'][:, 2].copy()
+            front_col = cube['F'][:, 2].copy()
+            cube['U'][:, 2] = front_col[::-1]
+            cube['B'][:, 0] = up_col
+            cube['D'][:, 2] = back_col
+            cube['F'][:, 2] = down_col[::-1]
+        else:
             cube['R'] = np.rot90(cube['R'], -1)
             up_col = cube['U'][:, 2].copy()
             back_col = cube['B'][:, 0].copy()
@@ -351,16 +362,6 @@ def rotate_face_3d(face, direction):
             cube['B'][:, 0] = down_col
             cube['D'][:, 2] = front_col[::-1]
             cube['F'][:, 2] = up_col[::-1]
-        else:
-            cube['R'] = np.rot90(cube['R'], 1)
-            up_col = cube['U'][:, 2].copy()
-            back_col = cube['B'][:, 0].copy()
-            down_col = cube['D'][:, 2].copy()
-            front_col = cube['F'][:, 2].copy()
-            cube['U'][:, 2] = front_col
-            cube['B'][:, 0] = up_col
-            cube['D'][:, 2] = back_col[::-1]
-            cube['F'][:, 2] = down_col[::-1]
 
 def rotate_middle_horizontal(direction):
     global cube
