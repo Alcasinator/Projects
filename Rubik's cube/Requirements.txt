@@ -1,0 +1,6 @@
+pygame
+PyOpenGL
+opencv-python
+mediapipe
+numpy
+kociemba

@@ -620,7 +620,7 @@ def detect_gesture(results):
         palm_vector = np.array([middle.x - wrist.x, middle.y - wrist.y, middle.z - wrist.z])
         index_vector = np.array([index.x - wrist.x, index.y - wrist.y, index.z - wrist.z])
         dot = np.dot(palm_vector, index_vector)
-        norm_product = np.linalg.norm(palm_vector) * np.linalg.norm(index_vector)
+        norm_product = np.linalg.norm(palm_vector) * np.linalg.norm (index_vector)
         if norm_product == 0:
             return False
         angle = math.degrees(math.acos(np.clip(dot / norm_product, -1.0, 1.0)))
@@ -630,10 +630,10 @@ def detect_gesture(results):
     if left and right:
         if is_palm_open(left) and is_palm_open(right):
             return "Reset Cube"
-        if is_index_up(right) and is_fist(left):
-            return "Middle Row Right"
-        if is_index_up(left) and is_fist(right):
-            return "Middle Row Left"
+        # if is_index_up(right) and is_fist(left):
+        #     return "Middle Row Right"
+        # if is_index_up(left) and is_fist(right):
+        #     return "Middle Row Left"
 
     # Right hand gestures
     if right:
@@ -641,8 +641,8 @@ def detect_gesture(results):
             return "Rotate Right Face"
         if is_pinky_up(right):
             return "Rotate Up Face"
-        if is_middle_up(right):
-            return "Middle Column Up"
+        # if is_middle_up(right):
+        #     return "Middle Column Up"
         if is_ring_up(right):
             return "Rotate Front Face"
 
@@ -652,8 +652,8 @@ def detect_gesture(results):
             return "Rotate Left Face"
         if is_pinky_up(left):
             return "Rotate Down Face"
-        if is_middle_up(left):
-            return "Middle Column Down"
+        # if is_middle_up(left):
+        #     return "Middle Column Down"
         if is_ring_up(left):
             return "Rotate Back Face"
 
