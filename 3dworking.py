@@ -7,21 +7,21 @@ from OpenGL.GLU import *
 import pygame
 from pygame.locals import *
 
-# Initialize Pygame
+#pygame
 pygame.init()
 display = (800, 600)
 pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
 pygame.display.set_caption("3D Rubik's Cube with Gestures")
 clock = pygame.time.Clock()
 
-# Define cube colors
+#cube colors
 colors = {
-    'W': (1.0, 1.0, 1.0),  # White
-    'Y': (1.0, 1.0, 0.0),  # Yellow
-    'R': (1.0, 0.0, 0.0),  # Red
-    'O': (1.0, 0.5, 0.0),  # Orange
-    'B': (0.0, 0.0, 1.0),  # Blue
-    'G': (0.0, 1.0, 0.0),  # Green
+    'W': (1.0, 1.0, 1.0),  
+    'Y': (1.0, 1.0, 0.0),  
+    'R': (1.0, 0.0, 0.0),  
+    'O': (1.0, 0.5, 0.0),  
+    'B': (0.0, 0.0, 1.0),  
+    'G': (0.0, 1.0, 0.0),  
 }
 
 # Initialize 2D cube state
@@ -34,7 +34,7 @@ cube = {
     'R': np.full((3, 3), 'G'),
 }
 
-# MediaPipe setup
+#mediapipe
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7, max_num_hands=2)
 mp_draw = mp.solutions.drawing_utils
@@ -89,12 +89,12 @@ def draw_cube_body(x, y, z, size):
 def draw_cubelet(x, y, z, size, stickers):
     half = size / 2
     face_directions = {
-        'F': ((0, 0, 1),   (0, 0, 0)),     # Front
-        'B': ((0, 0, -1),  (0, 180, 0)),   # Back
-        'U': ((0, 1, 0),   (-90, 0, 0)),   # Up
-        'D': ((0, -1, 0),  (90, 0, 0)),    # Down
-        'L': ((-1, 0, 0),  (0, -90, 0)),   # Left
-        'R': ((1, 0, 0),   (0, 90, 0)),    # Right
+        'F': ((0, 0, 1),   (0, 0, 0)),     
+        'B': ((0, 0, -1),  (0, 180, 0)),   
+        'U': ((0, 1, 0),   (-90, 0, 0)),   
+        'D': ((0, -1, 0),  (90, 0, 0)),    
+        'L': ((-1, 0, 0),  (0, -90, 0)),   
+        'R': ((1, 0, 0),   (0, 90, 0)),    
     }
 
     glPushMatrix()
@@ -138,7 +138,6 @@ def draw_full_cube():
                     if x == 2: stickers['R'] = cube['R'][2-y][z]    # Right (Green)
                     draw_cubelet((x-1)*spacing, (y-1)*spacing, (z-1)*spacing, 0.9, stickers)
 
-# Reset cube state
 def reset_cube():
     global cube
     cube = {
@@ -236,7 +235,7 @@ def rotate_face_3d(face, direction):
             cube['L'][:, 2] = up_row
     elif face == 'L':
         if direction == 1:  # Clockwise
-            cube['L'] = np.rot90(cube['L'], 1)  # 90 degrees clockwise
+            cube['L'] = np.rot90(cube['L'], 1)  
             # Update adjacent faces (U, F, D, B)
             up_col = cube['U'][:, 0].copy()
             front_col = cube['F'][:, 0].copy()
