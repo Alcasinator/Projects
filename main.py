@@ -8,24 +8,24 @@ import pygame
 from pygame.locals import *
 import kociemba
 
-# Initialize Pygame
+#pygame
 pygame.init()
 display = (800, 600)
 pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
 pygame.display.set_caption("3D Rubik's Cube with Gestures and Solver")
 clock = pygame.time.Clock()
 
-# Define cube colors
+#cube colors
 colors = {
-    'W': (1.0, 1.0, 1.0),  # White
-    'Y': (1.0, 1.0, 0.0),  # Yellow
-    'R': (1.0, 0.0, 0.0),  # Red
-    'O': (1.0, 0.5, 0.0),  # Orange
-    'B': (0.0, 0.0, 1.0),  # Blue
-    'G': (0.0, 1.0, 0.0),  # Green
+    'W': (1.0, 1.0, 1.0),  
+    'Y': (1.0, 1.0, 0.0),  
+    'R': (1.0, 0.0, 0.0),  
+    'O': (1.0, 0.5, 0.0),  
+    'B': (0.0, 0.0, 1.0),  
+    'G': (0.0, 1.0, 0.0),  
 }
 
-# Initialize 2D cube state (global)
+#2D cube state (global)
 cube = {
     'U': np.full((3, 3), 'W'),
     'D': np.full((3, 3), 'Y'),
@@ -35,7 +35,7 @@ cube = {
     'R': np.full((3, 3), 'G'),
 }
 
-# MediaPipe setup
+#mediapipe
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7, max_num_hands=2)
 mp_draw = mp.solutions.drawing_utils
@@ -45,14 +45,14 @@ if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
-# Solver state (global)
+#solver state (global)
 solving = False
 solution_steps = []
 current_step = 0
 expected_face = None
 last_gesture = ""
 
-# OpenGL setup
+#opengl
 def init():
     glEnable(GL_DEPTH_TEST)
     glClearColor(0.1, 0.1, 0.1, 1.0)
@@ -422,7 +422,7 @@ def get_cube_string():
     face_order = ['U', 'R', 'F', 'D', 'L', 'B']
     color_map = {'W': 'U', 'G': 'R', 'R': 'F', 'Y': 'D', 'B': 'L', 'O': 'B'}
     result = ''
-    # Create a copy to avoid modifying original cube
+    #copy created
     temp_cube = {face: cube[face].copy() for face in face_order}
     # Fix orientations
     temp_cube['U'] = temp_cube['U'][::-1]  # Reverse rows
@@ -438,7 +438,7 @@ def get_cube_string():
 # Define color_map globally (if not already defined)
 color_map = {'W': 'U', 'G': 'R', 'R': 'F', 'Y': 'D', 'B': 'L', 'O': 'B'}
 
-# Debug function to print faces and cube string
+#debug function to print faces and cube string
 def debug_cube():
     print("=== Cube Faces (NumPy Arrays) ===")
     for face in ['U', 'R', 'F', 'D', 'L', 'B']:
@@ -587,16 +587,16 @@ def detect_gesture(results):
             right = h["landmarks"]
 
     def is_index_up(hand):
-        return hand.landmark[8].y < hand.landmark[6].y  # Index tip above PIP
+        return hand.landmark[8].y < hand.landmark[6].y  #index tip above PIP
 
     def is_pinky_up(hand):
-        return hand.landmark[20].y < hand.landmark[18].y  # Pinky tip above PIP
+        return hand.landmark[20].y < hand.landmark[18].y  #pinky tip above PIP
 
     def is_middle_up(hand):
-        return hand.landmark[12].y < hand.landmark[10].y  # Middle tip above PIP
+        return hand.landmark[12].y < hand.landmark[10].y  #middle tip above PIP
 
     def is_ring_up(hand):
-        return hand.landmark[16].y < hand.landmark[14].y  # Ring tip above PIP
+        return hand.landmark[16].y < hand.landmark[14].y  #ring tip above PIP
 
     def is_fist(hand):
         finger_tips = [8, 12, 16, 20]
