@@ -4,13 +4,12 @@ import cv2
 import mediapipe as mp
 import math
 
-# Initialize Pygame
+#pygame
 pygame.init()
 screen = pygame.display.set_mode((750, 600))
 pygame.display.set_caption("Rubik's Cube")
 clock = pygame.time.Clock()
 
-# Define cube colors
 colors = {
     "W": (255, 255, 255),
     "Y": (255, 255, 0),
@@ -20,7 +19,7 @@ colors = {
     "G": (0, 128, 0),
 }
 
-# Initialize cube
+#initialize cube
 cube = {
     "U": np.full((3, 3), "W"),
     "D": np.full((3, 3), "Y"),
@@ -30,7 +29,7 @@ cube = {
     "R": np.full((3, 3), "G"),
 }
 
-# MediaPipe setup
+#mediapipe
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7, max_num_hands=2)
 mp_draw = mp.solutions.drawing_utils
@@ -40,7 +39,7 @@ if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
-# Draw face of the cube
+#faces
 def draw_face(face, x_offset, y_offset):
     for i in range(3):
         for j in range(3):
@@ -48,7 +47,7 @@ def draw_face(face, x_offset, y_offset):
             pygame.draw.rect(screen, color, (x_offset + j * 50, y_offset + i * 50, 48, 48))
             pygame.draw.rect(screen, (0, 0, 0), (x_offset + j * 50, y_offset + i * 50, 48, 48), 2)
 
-# Draw full cube layout
+#cube layout
 def draw_cube():
     screen.fill((30, 30, 30))
     draw_face("U", 200, 50)
@@ -59,7 +58,6 @@ def draw_cube():
     draw_face("D", 200, 350)
     pygame.display.flip()
 
-# Reset cube state
 def reset_cube():
     global cube
     cube = {
@@ -72,7 +70,7 @@ def reset_cube():
     }
     print("Cube reset to initial state.")
 
-# Rotation logic
+# Rotations
 def rotate_face_clockwise(face):
     global cube
     cube[face] = np.rot90(cube[face], -1)
@@ -135,7 +133,7 @@ def rotate_face_clockwise(face):
 def rotate_middle_horizontal(direction):
     global cube
     print(f"Rotating middle row {direction} (before): F[1]={cube['F'][1]}, R[1]={cube['R'][1]}, B[1]={cube['B'][1]}, L[1]={cube['L'][1]}")
-    temp = cube["F"][1].copy()  # Store the initial F[1] value
+    temp = cube["F"][1].copy()  
     if direction == 1:  # Right rotation (F → R → B → L)
         cube["F"][1] = cube["R"][1]
         cube["R"][1] = cube["B"][1]
@@ -164,7 +162,7 @@ def rotate_middle_vertical(direction):
         cube["L"][:, 1] = temp_col
     print(f"Rotating middle column {direction} (after): U[:,1]={cube['U'][:, 1]}, L[:,1]={cube['L'][:, 1]}, D[:,1]={cube['D'][:, 1]}, R[:,1]={cube['R'][:, 1]}")
 
-# Process gestures
+#gestures
 def process_gesture(gesture_text):
     global last_gesture
     print(f"Processing gesture: {gesture_text}")
@@ -192,7 +190,7 @@ def process_gesture(gesture_text):
         rotate_middle_vertical(-1)
     last_gesture = gesture_text
 
-# Detect gesture from hand landmarks
+#gesture detection
 def detect_gesture(results):
     if not results.multi_hand_landmarks:
         return ""
