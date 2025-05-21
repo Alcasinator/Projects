@@ -30,7 +30,7 @@ A Python-based system to solve a 3x3 Rubik’s Cube using hand gestures detected
 
    ```bash
    git clone https://github.com/noughtsad/Rubiks-Cube.git
-   cd rubiks-cube-solver
+   cd Rubiks-Cube
    ```
 
 2. **Set Up a Virtual Environment** (optional but recommended):
